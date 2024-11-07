@@ -11,7 +11,7 @@ Easily run your Streamlit apps in a desktop window with `pywebview`. This packag
 
 ## Installation
 
-You can install `streamlit_desktop_app` via **pip** or **Poetry**:
+You can install `streamlit_desktop_app` via **pip** or **Poetry**: (Not Yet)
 
 ### Using pip
 
