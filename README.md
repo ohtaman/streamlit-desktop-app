@@ -65,7 +65,9 @@ This will use the built-in example app to demonstrate how `streamlit_desktop_app
 
 ## API Reference
 
-### `start_desktop_app(script_path, title="Streamlit Desktop App", width=800, height=600, options=None)`
+```python
+start_desktop_app(script_path, title="Streamlit Desktop App", width=800, height=600, options=None)
+```
 
 - **`script_path`** (str): Path to the Streamlit script to be run.
 - **`title`** (str): Title of the desktop window (default: "Streamlit Desktop App").
@@ -73,7 +75,9 @@ This will use the built-in example app to demonstrate how `streamlit_desktop_app
 - **`height`** (int): Height of the desktop window (default: 600).
 - **`options`** (dict): Additional Streamlit options (e.g., `server.enableCORS`).
 
-### `run_streamlit(script_path, options)`
+```python
+run_streamlit(script_path, options)
+```
 
 - **`script_path`** (str): Path to the Streamlit script to be run.
 - **`options`** (dict): Dictionary of Streamlit configuration options, such as port and headless settings.
