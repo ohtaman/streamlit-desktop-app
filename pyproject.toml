@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "streamlit-desktop-app"
+version = "0.1.0"
+description = ""
+authors = ["ohtaman"]
+license = "Apache2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+streamlit = ">=1.13.0"
+pywebview = "^5.3.2"
+requests = "^2.32.3"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.13.0"
+ruff = "^0.7.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
