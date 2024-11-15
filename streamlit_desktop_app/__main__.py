@@ -1,4 +1,4 @@
-from .core import start_desktop_app
+from streamlit_desktop_app.core import start_desktop_app
 import os
 
 def main():

@@ -1,11 +1,12 @@
+import multiprocessing
 import webview
 import socket
-import subprocess
 import sys
 import time
 from typing import Optional, Dict
 import requests
 
+from streamlit.web import cli as stcli
 
 def find_free_port() -> int:
     """Find an available port on the system."""
@@ -15,19 +16,18 @@ def find_free_port() -> int:
         return s.getsockname()[1]
 
 
-def run_streamlit(script_path: str, options: Dict[str, str]) -> subprocess.Popen:
+def run_streamlit(script_path: str, options: Dict[str, str]) -> None:
     """Run the Streamlit app with specified options in a subprocess.
 
     Args:
         script_path: Path to the Streamlit script.
         options: Dictionary of Streamlit options, including port and headless settings.
-
-    Returns:
-        A Popen object representing the Streamlit server process.
     """
-    args = [sys.executable, "-m", "streamlit.web.cli", "run", script_path]
+
+    args = ["streamlit", "run", script_path]
     args.extend([f"--{key}={value}" for key, value in options.items()])
-    return subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sys.argv = args
+    stcli.main()
 
 
 def wait_for_server(port: int, timeout: int = 10) -> None:
@@ -67,21 +67,32 @@ def start_desktop_app(
     """
     if options is None:
         options = {}
+
+    # Check for overridden options and print warnings
+    overridden_options = ["server.address", "server.port", "server.headless", "global.developmentMode"]
+    for opt in overridden_options:
+        if opt in options:
+            print(f"Warning: Option '{opt}' is overridden by the application and will be ignored.")
+
     port = find_free_port()
+    options["server.address"] = "127.0.0.1"
     options["server.port"] = str(port)
     options["server.headless"] = "true"
+    options["global.developmentMode"] = "false"
 
     # Launch Streamlit in a background process
-    streamlit_process = run_streamlit(script_path, options)
+    multiprocessing.freeze_support()
+    streamlit_process = multiprocessing.Process(target=run_streamlit, args=(script_path, options))
+    streamlit_process.start()
 
     try:
         # Wait for the Streamlit server to start
         wait_for_server(port)
 
         # Start pywebview with the Streamlit server URL
-        window = webview.create_window(title, f"http://localhost:{port}", width=width, height=height)
+        webview.create_window(title, f"http://localhost:{port}", width=width, height=height)
         webview.start()
     finally:
         # Ensure the Streamlit process is terminated
         streamlit_process.terminate()
-        streamlit_process.wait()
+        streamlit_process.join()
