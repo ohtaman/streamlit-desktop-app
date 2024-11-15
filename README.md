@@ -137,7 +137,7 @@ If you prefer to run PyInstaller manually, follow these steps:
    Run the following command to create a standalone executable for your app:
 
    ```bash
-   pyinstaller --onefile --name "MyStreamlitApp" --windowed -i path/to/icon.ico --collect-all streamlit example.py
+   pyinstaller --onefile --name "MyStreamlitApp" --windowed -i path/to/icon.ico --collect-all streamlit --copy-metadata streamlit example.py
    ```
 
    - **`--onefile`**: Packages everything into a single executable.

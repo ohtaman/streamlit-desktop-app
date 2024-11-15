@@ -79,7 +79,6 @@ if __name__ == "__main__":
         "--paths", ".",
         "--collect-all", "streamlit",
         "--copy-metadata", "streamlit",
-        "--hidden-import", "streamlit-desktop-app",
         "--add-data", f"{script}:.",  # Add the script as a data file
         wrapper_path
     ]
