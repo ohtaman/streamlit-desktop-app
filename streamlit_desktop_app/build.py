@@ -3,7 +3,7 @@ import ast
 import os
 import sys
 import tempfile
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 import PyInstaller.__main__
 
 def extract_imports(script_path: str) -> List[str]:
@@ -23,17 +23,46 @@ def extract_imports(script_path: str) -> List[str]:
 
     return list(imports)
 
-def parse_streamlit_options(options: Optional[List[str]]) -> Optional[Dict[str, str]]:
+
+def parse_streamlit_options(
+    options: Optional[Union[List[str], Dict[str, str]]]
+) -> Optional[Dict[str, str]]:
+    """
+    Parse Streamlit options from either a list of arguments or a dictionary.
+
+    Args:
+        options: A list of arguments (e.g., ["--theme.base", "dark"]) or a dictionary.
+
+    Returns:
+        A dictionary of options (e.g., {"theme.base": "dark"}).
+    """
     if not options:
         return None
+
+    if isinstance(options, dict):
+        # If already a dictionary, return as is
+        return options
+
     options_dict = {}
-    for option in options:
-        if '=' in option:
-            key, value = option.split('=', 1)
-            options_dict[key] = value
+    current_key = None
+
+    for token in options:
+        if token.startswith("--"):
+            # Strip the leading '--' and prepare for a new key
+            if '=' in token:
+                key, value = token.lstrip('-').split('=', 1)
+                options_dict[key] = value
+            else:
+                current_key = token.lstrip('-')
+                options_dict[current_key] = True  # Assume flag is True unless overridden
         else:
-            options_dict[option] = True
+            # This token is the value for the last key
+            if current_key:
+                options_dict[current_key] = token
+                current_key = None  # Reset after value assignment
+
     return options_dict
+
 
 def build_executable(script: str, name: str, icon: Optional[str] = None, pyinstaller_options: Optional[List[str]] = None, streamlit_options: Optional[list[str]] = None):
     """
