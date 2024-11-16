@@ -6,26 +6,31 @@ import tempfile
 from typing import Optional, Dict, List, Union
 import PyInstaller.__main__
 
+
 def extract_imports(script_path: str) -> List[str]:
     """Extract all top-level imported modules from the given script."""
     imports = set()
-    
+
     with open(script_path, "r") as file:
         tree = ast.parse(file.read(), filename=script_path)
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                imports.add(alias.name.split('.')[0])  # Capture only the top-level module
+                imports.add(
+                    alias.name.split(".")[0]
+                )  # Capture only the top-level module
         elif isinstance(node, ast.ImportFrom):
             if node.module:
-                imports.add(node.module.split('.')[0])  # Capture only the top-level module
+                imports.add(
+                    node.module.split(".")[0]
+                )  # Capture only the top-level module
 
     return list(imports)
 
 
 def parse_streamlit_options(
-    options: Optional[Union[List[str], Dict[str, str]]]
+    options: Optional[Union[List[str], Dict[str, str]]],
 ) -> Optional[Dict[str, str]]:
     """
     Parse Streamlit options from either a list of arguments or a dictionary.
@@ -49,12 +54,14 @@ def parse_streamlit_options(
     for token in options:
         if token.startswith("--"):
             # Strip the leading '--' and prepare for a new key
-            if '=' in token:
-                key, value = token.lstrip('-').split('=', 1)
+            if "=" in token:
+                key, value = token.lstrip("-").split("=", 1)
                 options_dict[key] = value
             else:
-                current_key = token.lstrip('-')
-                options_dict[current_key] = True  # Assume flag is True unless overridden
+                current_key = token.lstrip("-")
+                options_dict[current_key] = (
+                    True  # Assume flag is True unless overridden
+                )
         else:
             # This token is the value for the last key
             if current_key:
@@ -64,7 +71,13 @@ def parse_streamlit_options(
     return options_dict
 
 
-def build_executable(script: str, name: str, icon: Optional[str] = None, pyinstaller_options: Optional[List[str]] = None, streamlit_options: Optional[list[str]] = None):
+def build_executable(
+    script: str,
+    name: str,
+    icon: Optional[str] = None,
+    pyinstaller_options: Optional[List[str]] = None,
+    streamlit_options: Optional[list[str]] = None,
+):
     """
     Wrapper command to build an executable using PyInstaller.
     """
@@ -74,7 +87,7 @@ def build_executable(script: str, name: str, icon: Optional[str] = None, pyinsta
 
     if not os.path.exists(script):
         sys.exit(f"Error: The script '{script}' does not exist.")
-    
+
     imports = extract_imports(script)
 
     if "start_desktop_app" not in open(script).read():
@@ -104,12 +117,17 @@ if __name__ == "__main__":
         wrapper_path = script
 
     args = [
-        "--name", name,
-        "--paths", ".",
-        "--collect-all", "streamlit",
-        "--copy-metadata", "streamlit",
-        "--add-data", f"{script}:.",  # Add the script as a data file
-        wrapper_path
+        "--name",
+        name,
+        "--paths",
+        ".",
+        "--collect-all",
+        "streamlit",
+        "--copy-metadata",
+        "streamlit",
+        "--add-data",
+        f"{script}:.",  # Add the script as a data file
+        wrapper_path,
     ]
 
     for pkg in imports:
@@ -126,38 +144,54 @@ if __name__ == "__main__":
     if wrapper_path != script:
         os.remove(wrapper_path)
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Build a standalone executable for your Streamlit desktop app.")
-    parser.add_argument("--script", required=True, help="Path to the Streamlit script to be packaged.")
+    parser = argparse.ArgumentParser(
+        description="Build a standalone executable for your Streamlit desktop app."
+    )
+    parser.add_argument(
+        "--script", required=True, help="Path to the Streamlit script to be packaged."
+    )
     parser.add_argument("--name", required=True, help="Name of the output executable.")
     parser.add_argument("--icon", help="Path to the icon file for the executable.")
-    parser.add_argument("--pyinstaller-options", nargs=argparse.REMAINDER, help="Additional arguments to pass to PyInstaller.")
-    parser.add_argument("--streamlit-options", nargs=argparse.REMAINDER, help="Additional Streamlit CLI options.")
+    parser.add_argument(
+        "--pyinstaller-options",
+        nargs=argparse.REMAINDER,
+        help="Additional arguments to pass to PyInstaller.",
+    )
+    parser.add_argument(
+        "--streamlit-options",
+        nargs=argparse.REMAINDER,
+        help="Additional Streamlit CLI options.",
+    )
     args = parser.parse_args()
 
     pyinstaller_options = []
     streamlit_options = []
 
     if args.pyinstaller_options:
-        if '--streamlit-options' in args.pyinstaller_options:
-            split_index = args.pyinstaller_options.index('--streamlit-options')
+        if "--streamlit-options" in args.pyinstaller_options:
+            split_index = args.pyinstaller_options.index("--streamlit-options")
             pyinstaller_options = args.pyinstaller_options[:split_index]
-            streamlit_options = args.pyinstaller_options[split_index + 1:]
+            streamlit_options = args.pyinstaller_options[split_index + 1 :]
         else:
             pyinstaller_options = args.pyinstaller_options
 
     if args.streamlit_options:
-        if '--pyinstaller-options' in args.streamlit_options:
-            split_index = args.streamlit_options.index('--pyinstaller-options')
+        if "--pyinstaller-options" in args.streamlit_options:
+            split_index = args.streamlit_options.index("--pyinstaller-options")
             streamlit_options = args.streamlit_options[:split_index]
-            pyinstaller_options = args.streamlit_options[split_index + 1:]
+            pyinstaller_options = args.streamlit_options[split_index + 1 :]
         else:
             streamlit_options = args.streamlit_options
 
     try:
-        build_executable(args.script, args.name, args.icon, pyinstaller_options, streamlit_options)
+        build_executable(
+            args.script, args.name, args.icon, pyinstaller_options, streamlit_options
+        )
     except Exception as e:
         sys.exit(f"Build failed: {e}")
+
 
 if __name__ == "__main__":
     main()

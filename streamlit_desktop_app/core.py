@@ -8,10 +8,11 @@ import requests
 
 from streamlit.web import cli as stcli
 
+
 def find_free_port() -> int:
     """Find an available port on the system."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('', 0))
+        s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
 
@@ -54,7 +55,7 @@ def start_desktop_app(
     title: str = "Streamlit Desktop App",
     width: int = 1024,
     height: int = 768,
-    options: Optional[Dict[str, str]] = None
+    options: Optional[Dict[str, str]] = None,
 ) -> None:
     """Start the Streamlit app as a desktop app using pywebview.
 
@@ -69,10 +70,17 @@ def start_desktop_app(
         options = {}
 
     # Check for overridden options and print warnings
-    overridden_options = ["server.address", "server.port", "server.headless", "global.developmentMode"]
+    overridden_options = [
+        "server.address",
+        "server.port",
+        "server.headless",
+        "global.developmentMode",
+    ]
     for opt in overridden_options:
         if opt in options:
-            print(f"Warning: Option '{opt}' is overridden by the application and will be ignored.")
+            print(
+                f"Warning: Option '{opt}' is overridden by the application and will be ignored."
+            )
 
     port = find_free_port()
     options["server.address"] = "localhost"
@@ -82,7 +90,9 @@ def start_desktop_app(
 
     # Launch Streamlit in a background process
     multiprocessing.freeze_support()
-    streamlit_process = multiprocessing.Process(target=run_streamlit, args=(script_path, options))
+    streamlit_process = multiprocessing.Process(
+        target=run_streamlit, args=(script_path, options)
+    )
     streamlit_process.start()
 
     try:
@@ -90,7 +100,9 @@ def start_desktop_app(
         wait_for_server(port)
 
         # Start pywebview with the Streamlit server URL
-        webview.create_window(title, f"http://localhost:{port}", width=width, height=height)
+        webview.create_window(
+            title, f"http://localhost:{port}", width=width, height=height
+        )
         webview.start()
     finally:
         # Ensure the Streamlit process is terminated
