@@ -52,8 +52,8 @@ def wait_for_server(port: int, timeout: int = 10) -> None:
 def start_desktop_app(
     script_path: str,
     title: str = "Streamlit Desktop App",
-    width: int = 800,
-    height: int = 600,
+    width: int = 1024,
+    height: int = 768,
     options: Optional[Dict[str, str]] = None
 ) -> None:
     """Start the Streamlit app as a desktop app using pywebview.
@@ -75,7 +75,7 @@ def start_desktop_app(
             print(f"Warning: Option '{opt}' is overridden by the application and will be ignored.")
 
     port = find_free_port()
-    options["server.address"] = "127.0.0.1"
+    options["server.address"] = "localhost"
     options["server.port"] = str(port)
     options["server.headless"] = "true"
     options["global.developmentMode"] = "false"
