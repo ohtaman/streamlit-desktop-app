@@ -64,7 +64,7 @@ def get_script_path():
         return os.path.join(os.path.dirname(sys.executable), "{os.path.basename(script)}")
 
 if __name__ == "__main__":
-    if hasattr(sys, 'frozen'):
+    if '_PYI_SPLASH_IPC' in os.environ:
         import pyi_splash
         pyi_splash.close()
     start_desktop_app(get_script_path(), title="{name}", options={parse_streamlit_options(streamlit_options)})
