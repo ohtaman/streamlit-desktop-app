@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "streamlit-desktop-app"
-version = "0.1.1"
+version = "0.0.0"
 description = "Easily convert Streamlit apps into standalone desktop applications."
 authors = ["ohtaman <ohtamans@gmail.com>"]
 license = "Apache-2.0"
@@ -31,6 +31,10 @@ types-requests = "^2.32.0.20241016"
 [tool.poetry.scripts]
 streamlit-desktop-build = "streamlit_desktop_app.build:main"
 
+[tool.poetry-dynamic-versioning]
+enable = true
+style = "pep440"
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
