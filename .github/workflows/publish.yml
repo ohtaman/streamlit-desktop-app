@@ -1,0 +1,43 @@
+name: Publish Python Package
+
+on:
+  release:
+    types:
+      - published
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      publish_target:
+        description: "Choose where to publish the package"
+        required: false
+        default: "testpypi"
+        options:
+          - "testpypi"
+          - "pypi"
+
+jobs:
+  testpypi-publish:
+    name: Upload to TestPyPI
+    runs-on: ubuntu-latest
+    environment: testpypi
+    if: github.event_name == 'push' || github.event_name == 'release'|| github.event.inputs.publish_target == 'testpypi'
+    permissions:
+      id-token: write  # Required for OIDC authentication
+    steps:
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  pypi-publish:
+    name: Upload to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi
+    if: github.event_name == 'release' || github.event.inputs.publish_target == 'pypi'
+    permissions:
+      id-token: write  # Required for OIDC authentication
+    steps:
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
