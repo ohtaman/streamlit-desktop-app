@@ -7,7 +7,6 @@ Easily run your Streamlit apps in a desktop window with `pywebview`. This packag
 - **Desktop Application Feel**: Turn your Streamlit app into a desktop application with a native window.
 - **No Browser Required**: Use `pywebview` to create a streamlined experience, without needing to open a separate web browser.
 - **Simple Integration**: Just a few lines of code to launch your Streamlit app in a desktop window.
-- **Customizable**: Customize the title, size, and configuration of your desktop window.
 
 ## Installation
 
@@ -109,15 +108,25 @@ All required packages will be installed automatically when using `pip` or `Poetr
 
 To create a standalone executable for your Streamlit desktop app using **PyInstaller**, you can either manually run the commands or use the built-in wrapper command provided by this framework for convenience.
 
-### Using the Wrapper Command
+### Using `streamlit-desktop-build`
 
-To simplify the process, you can use the provided wrapper command to create the executable. This command will internally call PyInstaller with the correct options for you:
+The `streamlit-desktop-build` command simplifies creating standalone executables for your Streamlit desktop app. To use this command, you **must** install the library with PyInstaller support.
+
+#### Example with PyInstaller Options
+
+You can pass Streamlit configuration options using the `--streamlit-options` parameter. For example, the `--onefile` option packages everything into a single executable, making distribution easier:
 
 ```bash
-streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/to/icon.ico --pyinstaller_options --noconfirm --hidden-import=some_module
+streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/to/icon.ico --pyinstaller-options --onefile --noconfirm
 ```
 
+#### Example with Streamlit Options
 
+You can also pass Streamlit configuration options using the `--streamlit-options` parameter. For example, to set a dark theme:
+
+```bash
+streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/to/icon.ico --streamlit-options --theme.base=dark
+```
 
 ### Manually Running PyInstaller
 
@@ -137,14 +146,16 @@ If you prefer to run PyInstaller manually, follow these steps:
    Run the following command to create a standalone executable for your app:
 
    ```bash
-   pyinstaller --onefile --name "MyStreamlitApp" --windowed -i path/to/icon.ico --collect-all streamlit --copy-metadata streamlit example.py
+   pyinstaller --collect-all streamlit --copy-metadata streamlit --name "MyStreamlitApp" --onefile --windowed --splash path/to/splash_image.png -i path/to/icon.ico example.py
    ```
 
-   - **`--onefile`**: Packages everything into a single executable.
-   - **`--name`**: Sets the name of the generated executable.
-   - **`--windowed`**: Prevents a terminal window from opening alongside the app.
-   - **`-i`**: (Optional) Sets the icon for the executable.
    - **`--collect-all`**: Collects all necessary static files and resources for Streamlit to function properly.
+   - **`--copy-metadata`**: Ensures the required metadata for Streamlit is included in the executable, allowing it to function as expected.
+   - **`--name`**: Sets the name of the generated executable.
+   - **`--onefile`**: (Optional) Packages everything into a single executable.
+   - **`--windowed`**: (Optional) Prevents a terminal window from opening alongside the app.
+   - **`-i`**: (Optional) Sets the icon for the executable.
+   - **--splash**: (Optional) Displays a splash screen with the specified image while the application initializes.
 
 4. **Locate the Executable**:
 
@@ -193,4 +204,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 If you have any questions or issues, feel free to reach out via [GitHub Issues](https://github.com/ohtaman/streamlit-desktop-app/issues).
-
