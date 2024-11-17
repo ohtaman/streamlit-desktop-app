@@ -24,7 +24,7 @@ jobs:
     environment: testpypi
     if: github.event_name == 'push' || github.event_name == 'release'|| github.event.inputs.publish_target == 'testpypi'
     permissions:
-      id-token: write  # Required for OIDC authentication
+      id-token: write # Required for OIDC authentication
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,6 +43,11 @@ jobs:
 
       - name: Install dependencies
         run: poetry install --sync --no-interaction
+
+      - name: Setup dynamic versioning
+        run: |
+          poetry self add "poetry-dynamic-versioning[plugin]"
+          poetry dynamic-versioning enable
 
       - name: Package project
         run: poetry build
@@ -58,7 +63,7 @@ jobs:
     environment: pypi
     if: github.event_name == 'release' || github.event.inputs.publish_target == 'pypi'
     permissions:
-      id-token: write  # Required for OIDC authentication
+      id-token: write # Required for OIDC authentication
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -77,6 +82,11 @@ jobs:
 
       - name: Install dependencies
         run: poetry install --sync --no-interaction
+
+      - name: Setup dynamic versioning
+        run: |
+          poetry self add "poetry-dynamic-versioning[plugin]"
+          poetry dynamic-versioning enable
 
       - name: Package project
         run: poetry build
