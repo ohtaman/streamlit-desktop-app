@@ -26,6 +26,27 @@ jobs:
     permissions:
       id-token: write  # Required for OIDC authentication
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y
+
+      - name: Update PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install --sync --no-interaction
+
+      - name: Package project
+        run: poetry build
+
       - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -39,5 +60,26 @@ jobs:
     permissions:
       id-token: write  # Required for OIDC authentication
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y
+
+      - name: Update PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install --sync --no-interaction
+
+      - name: Package project
+        run: poetry build
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
