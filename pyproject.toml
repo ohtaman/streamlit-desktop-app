@@ -27,6 +27,7 @@ mypy = "^1.13.0"
 ruff = "^0.7.2"
 types-pyinstaller = "^6.11.0.20241028"
 types-requests = "^2.32.0.20241016"
+pytest = "^8.3.3"
 
 [tool.poetry.scripts]
 streamlit-desktop-build = "streamlit_desktop_app.build:main"
