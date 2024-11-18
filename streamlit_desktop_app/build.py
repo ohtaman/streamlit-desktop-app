@@ -72,25 +72,35 @@ def parse_streamlit_options(
 
 
 def build_executable(
-    script: str,
+    script_path: str,
     name: str,
+    script_type: str="raw",
+    raw_script_path: Optional[str] = None, 
     icon: Optional[str] = None,
     pyinstaller_options: Optional[List[str]] = None,
     streamlit_options: Optional[list[str]] = None,
 ):
     """
-    Wrapper command to build an executable using PyInstaller.
+    Build an executable using PyInstaller with explicit script type.
+
+    Args:
+        script_path: Path to the wrapped or raw Streamlit script.
+        name: Name of the output executable.
+        script_type: Type of script ('raw' or 'wrapped').
+        raw_script_path: Path to the raw Streamlit script (if script_type is 'wrapped').
+        icon: Path to the icon file for the executable.
+        pyinstaller_options: Additional arguments to pass to PyInstaller.
+        streamlit_options: Additional Streamlit CLI options.
     """
-    script = os.path.abspath(script)
+    if not os.path.exists(script_path):
+        sys.exit(f"Error: The script '{script_path}' does not exist.")
+
+    script_path = os.path.abspath(script_path)
     if icon:
         icon = os.path.abspath(icon)
 
-    if not os.path.exists(script):
-        sys.exit(f"Error: The script '{script}' does not exist.")
-
-    imports = extract_imports(script)
-
-    if "start_desktop_app" not in open(script).read():
+    if script_type == "raw":
+        raw_script_path  = script_path
         with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as tmp_wrapper:
             wrapper_path = tmp_wrapper.name
             wrapper_content = f"""
@@ -101,9 +111,9 @@ from streamlit_desktop_app import start_desktop_app
 
 def get_script_path():
     if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, "{os.path.basename(script)}")
+        return os.path.join(sys._MEIPASS, "{os.path.basename(script_path)}")
     else:
-        return os.path.join(os.path.dirname(sys.executable), "{os.path.basename(script)}")
+        return os.path.join(os.path.dirname(sys.executable), "{os.path.basename(script_path)}")
 
 if __name__ == "__main__":
     if '_PYI_SPLASH_IPC' in os.environ:
@@ -113,8 +123,14 @@ if __name__ == "__main__":
 """
             tmp_wrapper.write(wrapper_content.encode())
 
+    elif script_type == "wrapped":
+        wrapper_path = script_path
+        if not raw_script_path:
+            sys.exit("Error: --raw-script-path must be provided for wrapped scripts.")
     else:
-        wrapper_path = script
+        sys.exit(f"Error: Invalid script type '{script_type}'. Use 'raw' or 'wrapped'.")
+
+    imports = extract_imports(raw_script_path)
 
     args = [
         "--name",
@@ -126,9 +142,14 @@ if __name__ == "__main__":
         "--copy-metadata",
         "streamlit",
         "--add-data",
-        f"{script}:.",  # Add the script as a data file
+        f"{script_path}:.",  # Add the script as a data file
         wrapper_path,
     ]
+
+
+    # Add raw script as a data file
+    if script_type == "raw":
+        args.extend(["--add-data", f"{raw_script_path}:."])
 
     for pkg in imports:
         args.extend(["--hidden-import", pkg])
@@ -141,7 +162,7 @@ if __name__ == "__main__":
 
     PyInstaller.__main__.run(args)
 
-    if wrapper_path != script:
+    if wrapper_path != script_path:
         os.remove(wrapper_path)
 
 
@@ -154,6 +175,16 @@ def main():
     )
     parser.add_argument("--name", required=True, help="Name of the output executable.")
     parser.add_argument("--icon", help="Path to the icon file for the executable.")
+    parser.add_argument(
+        "--script-type",
+        choices=["raw", "wrapped"],
+        default="raw",
+        help="Type of script ('raw' or 'wrapped').",
+    )
+    parser.add_argument(
+        "--raw-script",
+        help="Path to the raw Streamlit script (required if script-type is 'wrapped').",
+    )
     parser.add_argument(
         "--pyinstaller-options",
         nargs=argparse.REMAINDER,
@@ -187,7 +218,13 @@ def main():
 
     try:
         build_executable(
-            args.script, args.name, args.icon, pyinstaller_options, streamlit_options
+            script_path=args.script_path,
+            name=args.name,
+            icon=args.icon,
+            script_type=args.script_type,
+            raw_script_path=args.raw_script,
+            pyinstaller_options=pyinstaller_options,
+            streamlit_options=streamlit_options,
         )
     except Exception as e:
         sys.exit(f"Build failed: {e}")
