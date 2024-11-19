@@ -1,4 +1,4 @@
-name: Setup Python Environment
+name: Build the Package
 
 on:
   workflow_call:
