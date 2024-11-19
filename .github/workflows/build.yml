@@ -15,7 +15,7 @@ on:
         type: string
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
