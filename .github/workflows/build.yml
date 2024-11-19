@@ -4,7 +4,14 @@ on:
   workflow_call:
     inputs:
       python-version:
-        required: true
+        required: false
+        default: "3.9"
+        type: string
+  workflow_dispatch:
+    inputs:
+      python-version:
+        required: false
+        default: "3.9"
         type: string
 
 jobs:
