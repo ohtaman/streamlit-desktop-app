@@ -1,0 +1,33 @@
+name: Setup Python Environment
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup dynamic versioning
+        run: |
+          poetry self add "poetry-dynamic-versioning[plugin]"
+          poetry dynamic-versioning enable
+
+      - name: Package project
+        run: poetry build

@@ -1,0 +1,42 @@
+name: Create Release and Attach Artifacts
+
+on:
+  push:
+    tags:
+      - "release/v*.*.*"  # この形式のタグが打たれた場合に実行
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    name: Create GitHub Release and Attach Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build artifacts
+        uses: ./.github/workflows/build.yml
+        with:
+          python-version: "3.9"
+
+      # GitHub Release の作成
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }} # タグ名を使用
+          release_name: "Release ${{ github.ref_name }}" # リリース名
+          body: |
+            🎉 New release: ${{ github.ref_name }}
+            Check out the attached artifacts and updates in this release!
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # リリースにアーティファクトを添付
+      - name: Upload Artifacts to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/ # Poetry によって生成されたアーティファクトのディレクトリ
+          asset_name: streamlit-desktop-app-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
