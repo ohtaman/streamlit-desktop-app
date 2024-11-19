@@ -1,0 +1,30 @@
+name: build_package
+description: Build the Package
+inputs:
+  python-version:
+    description: "Python version to use"
+    required: false
+    default: "3.9"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python - -y
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Setup dynamic versioning
+      run: |
+        poetry self add "poetry-dynamic-versioning[plugin]"
+        poetry dynamic-versioning enable
+      shell: bash
+
+    - name: Package project
+      run: poetry build
+      shell: bash
