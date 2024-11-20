@@ -3,22 +3,15 @@ name: Create Release and Attach Artifacts
 on:
   push:
     tags:
-      - "v*.*.*" # Trigger when a tag with this format is pushed
-  workflow_dispatch:
-    inputs:
-      tag_name:
-        description: "Tag name for the release (e.g., v1.2.3)"
-        required: false
-        default: ""
-      release_name:
-        description: "Release name (default: derived from tag)"
-        required: false
-        default: ""
-
+      - "v*.*.*"
 jobs:
   create-release:
     name: Create GitHub Release and Attach Artifacts
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: write # Required for Release
+      id-token: write # Required for OIDC authentication
 
     steps:
       - uses: actions/checkout@v4
@@ -26,34 +19,33 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Determine Tag Name
-        id: determine_tag
+      - name: Check Release Existence
+        id: check_release
         run: |
-          if [[ "${{ github.event.inputs.tag_name }}" != "" ]]; then
-            echo "::set-output name=tag_name::${{ github.event.inputs.tag_name }}"
-          elif [[ "${{ github.ref }}" != "" ]]; then
-            echo "::set-output name=tag_name::${{ github.ref_name }}"
+          if gh release view ${{ github.ref_name }} >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Error: No tag name provided." >&2
-            exit 1
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Determine Release Name
-        id: determine_release_name
+      - name: Delete Current Release
+        id: delete_release
+        if: steps.check_release.outputs.exists == 'ture'
         run: |
-          if [[ "${{ github.event.inputs.release_name }}" != "" ]]; then
-            echo "::set-output name=release_name::${{ github.event.inputs.release_name }}"
-          else
-            echo "::set-output name=release_name::Release ${{ steps.determine_tag.outputs.tag_name }}"
-          fi
+          gh release delete ${{ github.ref_name }} -y
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Create GitHub Release
         id: create_release
         run: |
-          gh release create ${{ steps.determine_tag.outputs.tag_name }} ./dist/* \
-            --title "${{ steps.determine_release_name.outputs.release_name }}" \
-            --notes "🎉 New release: ${{ steps.determine_tag.outputs.tag_name }}" \
+          gh release create ${{ github.ref_name }} ./dist/* \
+            --title "${{ github.ref_name }}" \
+            --notes "🎉 New release: ${{ github.ref_name }}" \
             --draft=false \
             --prerelease=false
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
