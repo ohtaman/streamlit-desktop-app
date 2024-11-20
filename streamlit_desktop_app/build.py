@@ -7,28 +7,6 @@ from typing import Optional, Dict, List, Union
 import PyInstaller.__main__
 
 
-def extract_imports(script_path: str) -> List[str]:
-    """Extract all top-level imported modules from the given script."""
-    imports = set()
-
-    with open(script_path, "r") as file:
-        tree = ast.parse(file.read(), filename=script_path)
-
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                imports.add(
-                    alias.name.split(".")[0]
-                )  # Capture only the top-level module
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.add(
-                    node.module.split(".")[0]
-                )  # Capture only the top-level module
-
-    return list(imports)
-
-
 def parse_streamlit_options(
     options: Optional[Union[List[str], Dict[str, str]]],
 ) -> Optional[Dict[str, str]]:
@@ -108,7 +86,7 @@ import os
 import sys
 
 from streamlit_desktop_app import start_desktop_app
-
+import streamlit_desktop_app
 def get_script_path():
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, "{os.path.basename(script_path)}")
@@ -130,7 +108,6 @@ if __name__ == "__main__":
     else:
         sys.exit(f"Error: Invalid script type '{script_type}'. Use 'raw' or 'wrapped'.")
 
-    imports = extract_imports(raw_script_path)
 
     args = [
         "--name",
@@ -146,13 +123,9 @@ if __name__ == "__main__":
         wrapper_path,
     ]
 
-
     # Add raw script as a data file
     if script_type == "raw":
-        args.extend(["--add-data", f"{raw_script_path}:."])
-
-    for pkg in imports:
-        args.extend(["--hidden-import", pkg])
+        args.append(raw_script_path)
 
     if icon:
         args.extend(["-i", icon])
@@ -218,7 +191,7 @@ def main():
 
     try:
         build_executable(
-            script_path=args.script_path,
+            script_path=args.script,
             name=args.name,
             icon=args.icon,
             script_type=args.script_type,
