@@ -7,6 +7,43 @@ from typing import Optional, Dict, List, Union
 import PyInstaller.__main__
 
 
+def get_imports(script_path: str) -> List[str]:
+    """
+    Extract a list of imported modules from a Python script.
+
+    This function analyzes the AST (Abstract Syntax Tree) of a Python script
+    to identify all `import` and `from ... import ...` statements, returning 
+    a list of fully qualified module names.
+
+    Args:
+        script_path (str): Path to the Python script to analyze.
+
+    Returns:
+        List[str]: A list of imported module names, including top-level and submodules.
+    """
+    # Read and parse the script
+    with open(script_path, "r", encoding="utf-8") as file:
+        tree = ast.parse(file.read(), filename=script_path)
+
+    imports = set()
+
+    # Traverse the AST to find import statements
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            # Handle `import module` or `import module as alias`
+            for alias in node.names:
+                imports.add(alias.name)  # Only add the module name
+        elif isinstance(node, ast.ImportFrom):
+            # Handle `from module import name` or `from module import name as alias`
+            if node.module:
+                for alias in node.names:
+                    # Add the fully qualified module name
+                    imports.add(f"{node.module}.{alias.name}")
+
+    # Return a sorted list of unique imports
+    return sorted(imports)
+
+
 def parse_streamlit_options(
     options: Optional[Union[List[str], Dict[str, str]]],
 ) -> Optional[Dict[str, str]]:
@@ -87,6 +124,8 @@ import sys
 
 from streamlit_desktop_app import start_desktop_app
 import streamlit_desktop_app
+
+
 def get_script_path():
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, "{os.path.basename(script_path)}")
@@ -120,18 +159,18 @@ if __name__ == "__main__":
         "streamlit",
         "--add-data",
         f"{script_path}:.",  # Add the script as a data file
-        wrapper_path,
     ]
-
-    # Add raw script as a data file
-    if script_type == "raw":
-        args.append(raw_script_path)
 
     if icon:
         args.extend(["-i", icon])
 
+    for pkg in get_imports(script_path):
+        args.extend(["--hidden-import", pkg])
+
     if pyinstaller_options:
         args.extend(pyinstaller_options)
+
+    args.append(wrapper_path)
 
     PyInstaller.__main__.run(args)
 
