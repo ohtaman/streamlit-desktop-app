@@ -7,7 +7,7 @@ from typing import Optional, Dict, List, Union
 import PyInstaller.__main__
 
 
-def get_imports(script_path: str) -> List[str]:
+def extract_imports(script_path: str) -> List[str]:
     """
     Extract a list of imported modules from a Python script.
 
@@ -31,8 +31,8 @@ def get_imports(script_path: str) -> List[str]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             # Handle `import module` or `import module as alias`
-            for alias in node.names:
-                imports.add(alias.name)  # Only add the module name
+            for module in node.names:
+                imports.add(module.name)  # Only add the module name
         elif isinstance(node, ast.ImportFrom):
             # Handle `from module import name` or `from module import name as alias`
             if node.module:
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     if icon:
         args.extend(["-i", icon])
 
-    for pkg in get_imports(script_path):
+    for pkg in extract_imports(script_path):
         args.extend(["--hidden-import", pkg])
 
     if pyinstaller_options:
