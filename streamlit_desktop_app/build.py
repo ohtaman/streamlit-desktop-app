@@ -89,8 +89,6 @@ def parse_streamlit_options(
 def build_executable(
     script_path: str,
     name: str,
-    script_type: str="raw",
-    raw_script_path: Optional[str] = None, 
     icon: Optional[str] = None,
     pyinstaller_options: Optional[List[str]] = None,
     streamlit_options: Optional[list[str]] = None,
@@ -101,8 +99,6 @@ def build_executable(
     Args:
         script_path: Path to the wrapped or raw Streamlit script.
         name: Name of the output executable.
-        script_type: Type of script ('raw' or 'wrapped').
-        raw_script_path: Path to the raw Streamlit script (if script_type is 'wrapped').
         icon: Path to the icon file for the executable.
         pyinstaller_options: Additional arguments to pass to PyInstaller.
         streamlit_options: Additional Streamlit CLI options.
@@ -114,11 +110,9 @@ def build_executable(
     if icon:
         icon = os.path.abspath(icon)
 
-    if script_type == "raw":
-        raw_script_path  = script_path
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as tmp_wrapper:
-            wrapper_path = tmp_wrapper.name
-            wrapper_content = f"""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as wrapper:
+        wrapper_path = wrapper.name
+        wrapper_content = f"""
 import os
 import sys
 
@@ -138,14 +132,7 @@ if __name__ == "__main__":
         pyi_splash.close()
     start_desktop_app(get_script_path(), title="{name}", options={parse_streamlit_options(streamlit_options)})
 """
-            tmp_wrapper.write(wrapper_content.encode())
-
-    elif script_type == "wrapped":
-        wrapper_path = script_path
-        if not raw_script_path:
-            sys.exit("Error: --raw-script-path must be provided for wrapped scripts.")
-    else:
-        sys.exit(f"Error: Invalid script type '{script_type}'. Use 'raw' or 'wrapped'.")
+        wrapper.write(wrapper_content.encode())
 
 
     args = [
@@ -174,8 +161,7 @@ if __name__ == "__main__":
 
     PyInstaller.__main__.run(args)
 
-    if wrapper_path != script_path:
-        os.remove(wrapper_path)
+    os.remove(wrapper_path)
 
 
 def main():
@@ -187,16 +173,6 @@ def main():
     )
     parser.add_argument("--name", required=True, help="Name of the output executable.")
     parser.add_argument("--icon", help="Path to the icon file for the executable.")
-    parser.add_argument(
-        "--script-type",
-        choices=["raw", "wrapped"],
-        default="raw",
-        help="Type of script ('raw' or 'wrapped').",
-    )
-    parser.add_argument(
-        "--raw-script",
-        help="Path to the raw Streamlit script (required if script-type is 'wrapped').",
-    )
     parser.add_argument(
         "--pyinstaller-options",
         nargs=argparse.REMAINDER,
@@ -233,8 +209,6 @@ def main():
             script_path=args.script,
             name=args.name,
             icon=args.icon,
-            script_type=args.script_type,
-            raw_script_path=args.raw_script,
             pyinstaller_options=pyinstaller_options,
             streamlit_options=streamlit_options,
         )
