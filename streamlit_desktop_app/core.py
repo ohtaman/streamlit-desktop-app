@@ -24,7 +24,6 @@ def run_streamlit(script_path: str, options: Dict[str, str]) -> None:
         script_path: Path to the Streamlit script.
         options: Dictionary of Streamlit options, including port and headless settings.
     """
-
     args = ["streamlit", "run", script_path]
     args.extend([f"--{key}={value}" for key, value in options.items()])
     sys.argv = args
