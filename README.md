@@ -31,6 +31,14 @@ pip install streamlit_desktop_app
 
 #### Using Poetry
 
+**Important Note:** Due to PyInstaller's current limitations, ensure your `pyproject.toml` specifies a compatible Python version range:
+
+```toml
+python = "^3.10,<3.14"
+```
+
+Then install the package:
+
 ```bash
 poetry add streamlit_desktop_app
 ```
