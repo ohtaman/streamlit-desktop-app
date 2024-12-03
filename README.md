@@ -160,10 +160,10 @@ To run desktop applications on Windows, you must have the **.NET Framework** (> 
 ### Installation Steps:
 
 1. .NET Framework:
-  - Download and install the latest version of the .NET Framework from the [official Microsoft website](https://dotnet.microsoft.com/download/dotnet) if it’s not already installed.
-  - Verify the installation by checking your system's installed programs list or using the `dotnet --info` command in the command prompt.
+   - Download and install the latest version of the .NET Framework from the [official Microsoft website](https://dotnet.microsoft.com/download/dotnet) if it’s not already installed.
+   - Verify the installation by checking your system's installed programs list or using the `dotnet --info` command in the command prompt.
 2. Edge Webview2:
-  - Download and install Edge Webview2 from the [official Microsoft page](https://developer.microsoft.com/microsoft-edge/webview2).
+   - Download and install Edge Webview2 from the [official Microsoft page](https://developer.microsoft.com/microsoft-edge/webview2).
 
 ---
 
