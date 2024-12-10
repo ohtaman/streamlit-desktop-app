@@ -164,27 +164,7 @@ if __name__ == "__main__":
     os.remove(wrapper_path)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Build a standalone executable for your Streamlit desktop app."
-    )
-    parser.add_argument(
-        "--script", required=True, help="Path to the Streamlit script to be packaged."
-    )
-    parser.add_argument("--name", required=True, help="Name of the output executable.")
-    parser.add_argument("--icon", help="Path to the icon file for the executable.")
-    parser.add_argument(
-        "--pyinstaller-options",
-        nargs=argparse.REMAINDER,
-        help="Additional arguments to pass to PyInstaller.",
-    )
-    parser.add_argument(
-        "--streamlit-options",
-        nargs=argparse.REMAINDER,
-        help="Additional Streamlit CLI options.",
-    )
-    args = parser.parse_args()
-
+def build_command(args: argparse.Namespace):
     pyinstaller_options = []
     streamlit_options = []
 
@@ -204,14 +184,37 @@ def main():
         else:
             streamlit_options = args.streamlit_options
 
+    build_executable(
+        script_path=args.script,
+        name=args.name,
+        icon=args.icon,
+        pyinstaller_options=pyinstaller_options,
+        streamlit_options=streamlit_options,
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Build a standalone executable for your Streamlit desktop app."
+    )
+    parser.add_argument(
+        "--script", required=True, help="Path to the Streamlit script to be packaged."
+    )
+    parser.add_argument("--name", required=True, help="Name of the output executable.")
+    parser.add_argument("--icon", help="Path to the icon file for the executable.")
+    parser.add_argument(
+        "--pyinstaller-options",
+        nargs=argparse.REMAINDER,
+        help="Additional arguments to pass to PyInstaller.",
+    )
+    parser.add_argument(
+        "--streamlit-options",
+        nargs=argparse.REMAINDER,
+        help="Additional Streamlit CLI options.",
+    )
+
     try:
-        build_executable(
-            script_path=args.script,
-            name=args.name,
-            icon=args.icon,
-            pyinstaller_options=pyinstaller_options,
-            streamlit_options=streamlit_options,
-        )
+        build_command(parser.parse_args())
     except Exception as e:
         sys.exit(f"Build failed: {e}")
 
