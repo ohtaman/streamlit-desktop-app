@@ -1,5 +1,5 @@
 import argparse
-import sys
+
 
 from streamlit_desktop_app.build import build_executable
 
