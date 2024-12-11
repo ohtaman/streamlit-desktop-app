@@ -26,7 +26,7 @@ types-requests = "^2.32.0.20241016"
 pytest = "^8.3.3"
 
 [tool.poetry.scripts]
-streamlit-desktop-build = "streamlit_desktop_app.build:main"
+streamlit-desktop-app = "streamlit_desktop_app.cli:main"
 
 [tool.poetry-dynamic-versioning]
 enable = true

@@ -26,7 +26,7 @@ You can install `streamlit_desktop_app` via **pip** or **Poetry**. Both options 
 #### Using pip
 
 ```bash
-pip install streamlit_desktop_app
+pip install streamlit-desktop-app
 ```
 
 #### Using Poetry
@@ -40,7 +40,7 @@ python = "^3.10,<3.14"
 Then install the package:
 
 ```bash
-poetry add streamlit_desktop_app
+poetry add streamlit-desktop-app
 ```
 
 ### Verify the Installation
@@ -48,7 +48,7 @@ poetry add streamlit_desktop_app
 To verify the installation, run the following command:
 
 ```bash
-python -m streamlit_desktop_app
+python -m streamlit-desktop-app
 ```
 
 This will open a desktop window with a pre-built Streamlit app that includes a simple layout demonstrating the library's capabilities.
@@ -74,7 +74,7 @@ st.button("Click me!")
 To create a standalone executable, run the following command:
 
 ```bash
-streamlit-desktop-build --script example.py --name "MyStreamlitApp"
+streamlit-desktop-app build example.py --name MyStreamlitApp
 ```
 
 This command will:
@@ -89,7 +89,7 @@ This command will:
 If you want more control over the build process, use the `--pyinstaller-options` parameter. For example:
 
 ```bash
-streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/to/icon.ico --pyinstaller-options --onefile --noconfirm
+streamlit-desktop-app build example.py --name MyStreamlitApp --icon path/to/icon.ico --pyinstaller-options --onefile --noconfirm
 ```
 
 - **`--onefile`**: Packages everything into a single executable.
@@ -100,7 +100,7 @@ streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/
 To customize the behavior of the Streamlit app, use the `--streamlit-options` parameter. For example, to enable a dark theme:
 
 ```bash
-streamlit-desktop-build --script example.py --name "MyStreamlitApp" --icon path/to/icon.ico --streamlit-options --theme.base=dark
+streamlit-desktop-app build example.py --name MyStreamlitApp --icon path/to/icon.ico --streamlit-options --theme.base=dark
 ```
 
 ---
