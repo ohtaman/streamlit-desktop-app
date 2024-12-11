@@ -1,4 +1,3 @@
-import argparse
 import ast
 import os
 import sys
@@ -74,9 +73,7 @@ def parse_streamlit_options(
                 options_dict[key] = value
             else:
                 current_key = token.lstrip("-")
-                options_dict[current_key] = (
-                    True  # Assume flag is True unless overridden
-                )
+                options_dict[current_key] = "true"  # Assume flag is True unless overridden
         else:
             # This token is the value for the last key
             if current_key:
