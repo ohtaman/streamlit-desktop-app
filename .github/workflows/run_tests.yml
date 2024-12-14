@@ -10,7 +10,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-ubintu:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y
+
+      - name: Update PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install --sync --no-interaction
+
+      - name: Run tests with pytest
+        run: poetry run pytest
+
+  test-windows:
     name: Run Tests
     runs-on: ubuntu-latest
 
