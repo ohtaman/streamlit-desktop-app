@@ -51,13 +51,16 @@ jobs:
 
       - name: Install Poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python - -y
+          (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
 
-      - name: Update PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Add Poetry to PATH
+        run: |
+          setx PATH "%PATH%;%APPDATA%\Python\Scripts"
 
       - name: Install dependencies
-        run: poetry install --sync --no-interaction
+        run: |
+          poetry install --sync --no-interaction
 
       - name: Run tests with pytest
-        run: poetry run pytest
+        run: |
+          poetry run pytest
