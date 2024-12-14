@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-ubintu:
-    name: Run Tests
+    name: Run Tests on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
@@ -37,8 +37,8 @@ jobs:
         run: poetry run pytest
 
   test-windows:
-    name: Run Tests
-    runs-on: ubuntu-latest
+    name: Run Tests on Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
