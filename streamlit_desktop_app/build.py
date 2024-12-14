@@ -117,11 +117,17 @@ from streamlit_desktop_app import start_desktop_app
 import streamlit_desktop_app
 
 
+# To avoid font cache generation
+if "MPLCONFIGDIR" in os.environ:
+    del(os.environ["MPLCONFIGDIR"])
+
+
 def get_script_path():
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, "{os.path.basename(script_path)}")
     else:
         return os.path.join(os.path.dirname(sys.executable), "{os.path.basename(script_path)}")
+
 
 if __name__ == "__main__":
     if '_PYI_SPLASH_IPC' in os.environ:
@@ -137,6 +143,7 @@ if __name__ == "__main__":
         name,
         "--paths",
         ".",
+        "--strip",
         "--collect-all",
         "streamlit",
         "--copy-metadata",

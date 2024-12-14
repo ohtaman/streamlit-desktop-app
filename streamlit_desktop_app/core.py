@@ -1,11 +1,12 @@
+import logging
 import multiprocessing
-import webview
+import requests
 import socket
 import sys
 import time
 from typing import Optional, Dict
-import requests
 
+import webview
 from streamlit.web import cli as stcli
 
 
@@ -77,8 +78,8 @@ def start_desktop_app(
     ]
     for opt in overridden_options:
         if opt in options:
-            print(
-                f"Warning: Option '{opt}' is overridden by the application and will be ignored."
+            logging.warning(
+                f"Option '{opt}' is overridden by the application and will be ignored."
             )
 
     port = find_free_port()
