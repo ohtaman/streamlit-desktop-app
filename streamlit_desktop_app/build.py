@@ -143,7 +143,6 @@ if __name__ == "__main__":
         name,
         "--paths",
         ".",
-        "--strip",
         "--collect-all",
         "streamlit",
         "--copy-metadata",
