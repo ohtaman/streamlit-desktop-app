@@ -81,7 +81,8 @@ def wait_for_server(port: int, timeout: int = 10, retry_interval: float = 0.1, m
         max_retries: Maximum number of retry attempts for connection errors.
 
     Raises:
-        NetworkError: If server fails to start after retries or timeout.
+        TimeoutError: If server fails to start within timeout period.
+        NetworkError: If server fails to start after retries.
     """
     start_time = time.time()
     url = f"http://localhost:{port}"
@@ -93,13 +94,13 @@ def wait_for_server(port: int, timeout: int = 10, retry_interval: float = 0.1, m
             logger.info(f"Successfully connected to Streamlit server on port {port}")
             break
         except requests.ConnectionError as e:
-            current_time = time.time()
-            if current_time - start_time > timeout:
-                raise NetworkError(f"Streamlit server did not start within {timeout} seconds")
-            
             retry_count += 1
             if retry_count > max_retries:
                 raise NetworkError(f"Failed to connect to Streamlit server after {max_retries} retries: {str(e)}")
+            
+            current_time = time.time()
+            if current_time - start_time > timeout:
+                raise TimeoutError(f"Streamlit server did not start within {timeout} seconds")
             
             logger.warning(f"Connection attempt {retry_count} failed, retrying in {retry_interval} seconds")
             time.sleep(retry_interval)
@@ -168,21 +169,12 @@ def start_desktop_app(
                 title, f"http://localhost:{port}", width=width, height=height
             )
             webview.start()
-        except Exception as e:
-            logger.error(f"Error during app execution: {str(e)}")
-            raise
         finally:
             # Ensure the Streamlit process is terminated gracefully
             if streamlit_process.is_alive():
                 logger.info("Terminating Streamlit process...")
                 streamlit_process.terminate()
-                streamlit_process.join(timeout=5)  # Wait up to 5 seconds for process to terminate
-                
-                # Force kill if process hasn't terminated
-                if streamlit_process.is_alive():
-                    logger.warning("Streamlit process did not terminate gracefully, force killing...")
-                    streamlit_process.kill()
-                    streamlit_process.join()
+                streamlit_process.join()  # Single join call without timeout
             
             logger.info("Streamlit process terminated successfully")
             

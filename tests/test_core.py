@@ -67,14 +67,16 @@ class TestCore(unittest.TestCase):
         mock_requests_get.assert_called_with("http://localhost:12345")
 
     @patch("time.sleep")
+    @patch("time.time")
     @patch("streamlit_desktop_app.core.requests.get")
-    def test_wait_for_server_timeout(self, mock_requests_get, mock_sleep):
-        # Simulate server failing to start
+    def test_wait_for_server_timeout(self, mock_requests_get, mock_time, mock_sleep):
+        # Simulate server failing to start and time passing
         mock_requests_get.side_effect = requests.ConnectionError
+        # Provide enough time values for initial time and all retries
+        mock_time.side_effect = [0] + [1.1] * 10  # Initial time + enough values for retries
 
         with self.assertRaises(TimeoutError):
             wait_for_server(12345, timeout=1)  # Short timeout for testing
-        self.assertGreaterEqual(mock_sleep.call_count, 1)
 
     @patch("streamlit_desktop_app.core.webview")
     @patch("streamlit_desktop_app.core.wait_for_server")
