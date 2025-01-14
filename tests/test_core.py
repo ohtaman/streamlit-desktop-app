@@ -13,8 +13,21 @@ from streamlit_desktop_app.core import (
 
 
 class TestCore(unittest.TestCase):
+    """Test suite for the core functionality of the Streamlit Desktop App.
+
+    This test suite covers the main functionality of the streamlit-desktop-app
+    core module, including port management, server startup, and desktop window
+    creation. It uses unittest.mock to isolate tests from external dependencies.
+    """
     @patch("socket.socket")
     def test_find_free_port(self, mock_socket):
+        """Test the find_free_port function's ability to acquire an available port.
+
+        This test verifies that:
+        1. The function correctly binds to a socket
+        2. The socket is configured with REUSEADDR
+        3. The function returns the port number from getsockname
+        """
         # Mock socket behavior
         mock_socket_instance = MagicMock()
         mock_socket.return_value.__enter__.return_value = mock_socket_instance
@@ -30,8 +43,15 @@ class TestCore(unittest.TestCase):
         mock_socket_instance.setsockopt.assert_called_once_with(SOL_SOCKET, SO_REUSEADDR, 1)
 
 
-    @patch("streamlit.web.cli.main")  # Mock Streamlit CLI entry point
+    @patch("streamlit.web.cli.main")
     def test_run_streamlit(self, mock_stcli_main):
+        """Test the run_streamlit function's command-line argument handling.
+
+        This test verifies that:
+        1. The function correctly constructs Streamlit CLI arguments
+        2. sys.argv is properly set with the script path and options
+        3. The Streamlit CLI main function is called
+        """
         script_path = "test_script.py"
         options = {"theme.base": "dark", "server.headless": "true"}
 
@@ -57,6 +77,13 @@ class TestCore(unittest.TestCase):
     @patch("time.sleep")
     @patch("streamlit_desktop_app.core.requests.get")
     def test_wait_for_server_success(self, mock_requests_get, mock_sleep):
+        """Test successful server startup detection.
+
+        This test verifies that:
+        1. The function correctly detects when the server is running
+        2. It makes HTTP requests to check server availability
+        3. It doesn't raise a TimeoutError when the server responds
+        """
         # Simulate successful server start
         mock_requests_get.return_value.status_code = 200
 
@@ -69,6 +96,13 @@ class TestCore(unittest.TestCase):
     @patch("time.sleep")
     @patch("streamlit_desktop_app.core.requests.get")
     def test_wait_for_server_timeout(self, mock_requests_get, mock_sleep):
+        """Test server startup timeout handling.
+
+        This test verifies that:
+        1. The function correctly handles server startup failures
+        2. It raises a TimeoutError after the specified timeout period
+        3. It makes multiple attempts before timing out
+        """
         # Simulate server failing to start
         mock_requests_get.side_effect = requests.ConnectionError
 
@@ -83,6 +117,18 @@ class TestCore(unittest.TestCase):
     def test_start_desktop_app(
         self, mock_find_free_port, mock_process, mock_wait_for_server, mock_webview
     ):
+        """Test the complete desktop app startup process.
+
+        This test verifies that:
+        1. A free port is acquired for the Streamlit server
+        2. The Streamlit process is started with correct options
+        3. The function waits for the server to become available
+        4. The webview window is created with correct parameters
+        5. The Streamlit process is properly terminated on completion
+        
+        The test uses multiple mocks to isolate the function from its
+        dependencies and verify the interaction with each component.
+        """
         # Mock subprocess and webview behavior
         mock_process_instance = MagicMock()
         mock_process.return_value = mock_process_instance

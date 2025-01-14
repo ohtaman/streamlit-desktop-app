@@ -1,3 +1,37 @@
+"""Build module for creating standalone executables from Streamlit applications.
+
+This module provides functionality to package Streamlit applications into
+standalone executables using PyInstaller. It handles all the complexity of:
+- Analyzing Python script dependencies
+- Managing Streamlit configuration options
+- Creating a wrapper script for the application
+- Configuring PyInstaller for proper packaging
+
+The main entry point is the build_executable function, which orchestrates
+the entire build process.
+
+Example:
+    ```python
+    from streamlit_desktop_app.build import build_executable
+
+    # Basic usage
+    build_executable(
+        script_path='app.py',
+        name='MyApp',
+        icon='icon.ico'
+    )
+
+    # With additional options
+    build_executable(
+        script_path='app.py',
+        name='MyApp',
+        icon='icon.ico',
+        pyinstaller_options=['--onefile', '--clean'],
+        streamlit_options=['--theme.primaryColor', '#F63366']
+    )
+    ```
+"""
+
 import ast
 import os
 import sys
@@ -46,14 +80,33 @@ def extract_imports(script_path: str) -> List[str]:
 def parse_streamlit_options(
     options: Optional[Union[List[str], Dict[str, str]]],
 ) -> Optional[Dict[str, str]]:
-    """
-    Parse Streamlit options from either a list of arguments or a dictionary.
+    """Parse and normalize Streamlit configuration options.
+
+    This function converts Streamlit options from either command-line style
+    arguments or a dictionary into a normalized dictionary format. It handles
+    both flag-style options and key-value pairs.
 
     Args:
-        options: A list of arguments (e.g., ["--theme.base", "dark"]) or a dictionary.
+        options: Either a list of command-line style arguments
+            (e.g., ["--theme.base", "dark", "--server.headless"]) or
+            a dictionary of options (e.g., {"theme.base": "dark"}).
 
     Returns:
-        A dictionary of options (e.g., {"theme.base": "dark"}).
+        Optional[Dict[str, str]]: A dictionary of normalized options where:
+            - Keys are option names without leading dashes
+            - Values are the corresponding option values
+            - Flag-style options are set to "true"
+            Returns None if no options are provided.
+
+    Examples:
+        >>> parse_streamlit_options(["--theme.base", "dark"])
+        {"theme.base": "dark"}
+        
+        >>> parse_streamlit_options(["--server.headless"])
+        {"server.headless": "true"}
+        
+        >>> parse_streamlit_options({"theme.base": "dark"})
+        {"theme.base": "dark"}
     """
     if not options:
         return None
@@ -90,15 +143,46 @@ def build_executable(
     pyinstaller_options: Optional[List[str]] = None,
     streamlit_options: Optional[list[str]] = None,
 ):
-    """
-    Build an executable using PyInstaller with explicit script type.
+    """Build a standalone executable from a Streamlit application.
+
+    This function packages a Streamlit application into a standalone executable
+    using PyInstaller. It handles all necessary setup including:
+    - Creating a wrapper script that launches the Streamlit application
+    - Configuring PyInstaller with appropriate options
+    - Managing dependencies and resources
+    - Handling platform-specific requirements
 
     Args:
-        script_path: Path to the wrapped or raw Streamlit script.
-        name: Name of the output executable.
-        icon: Path to the icon file for the executable.
-        pyinstaller_options: Additional arguments to pass to PyInstaller.
-        streamlit_options: Additional Streamlit CLI options.
+        script_path: Path to the Streamlit application script. Must be a valid
+            Python file containing a Streamlit application.
+        name: Name for the output executable. This will be the name of the
+            final application.
+        icon: Optional path to an icon file (.ico) to use for the executable.
+            If not provided, the default PyInstaller icon will be used.
+        pyinstaller_options: Optional list of additional PyInstaller command-line
+            options. These will be passed directly to PyInstaller.
+        streamlit_options: Optional list of Streamlit configuration options.
+            These will be applied when the application starts.
+
+    Raises:
+        SystemExit: If the specified script_path does not exist.
+        PyInstaller.exceptions.ExecCommandFailed: If PyInstaller encounters
+            an error during the build process.
+
+    Example:
+        ```python
+        # Basic usage
+        build_executable('app.py', 'MyApp')
+
+        # With custom icon and options
+        build_executable(
+            script_path='app.py',
+            name='MyApp',
+            icon='app.ico',
+            pyinstaller_options=['--onefile', '--clean'],
+            streamlit_options=['--theme.primaryColor', '#F63366']
+        )
+        ```
     """
     if not os.path.exists(script_path):
         sys.exit(f"Error: The script '{script_path}' does not exist.")
