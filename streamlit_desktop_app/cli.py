@@ -133,7 +133,7 @@ def main():
         ```
     """
     parser = argparse.ArgumentParser(
-        description="Command-line interface for building Streamlit desktop applications"
+        description="Streamlit Desktop App CLI"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
