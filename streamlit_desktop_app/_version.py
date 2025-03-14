@@ -7,7 +7,7 @@ The version follows semantic versioning (SemVer) with the format:
     MAJOR.MINOR.PATCH[.devN]
 
 Example:
-    >>> from streamlit_desktop_app._version import __version__
+    >>> from streamlit_desktop_app import __version__
     >>> print(__version__)
     '0.0.0.dev'
 """
