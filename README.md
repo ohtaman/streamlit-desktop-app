@@ -160,7 +160,7 @@ To run desktop applications on Windows, you must have the **.NET Framework** (> 
 ### Installation Steps:
 
 1. .NET Framework:
-   - Download and install the latest version of the .NET Framework from the [official Microsoft website](https://dotnet.microsoft.com/download/dotnet) if it’s not already installed.
+   - Download and install the latest version of the .NET Framework from the [official Microsoft website](https://dotnet.microsoft.com/download/dotnet) if it's not already installed.
    - Verify the installation by checking your system's installed programs list or using the `dotnet --info` command in the command prompt.
 2. Edge Webview2:
    - Download and install Edge Webview2 from the [official Microsoft page](https://developer.microsoft.com/microsoft-edge/webview2).
@@ -210,3 +210,81 @@ This project is licensed under the Apache-2.0 License. See the [LICENSE](LICENSE
 ## Contact
 
 If you have any questions or issues, feel free to reach out via [GitHub Issues](https://github.com/ohtaman/streamlit-desktop-app/issues).
+
+## 🎯 Running the Built Application
+
+After building your application using the steps above, you'll find the executable in the `dist` directory. Here's how to run it on different operating systems:
+
+### Windows
+- Navigate to `dist/MyStreamlitApp/`
+- Double-click `MyStreamlitApp.exe` or run from command prompt:
+  ```bash
+  dist\MyStreamlitApp\MyStreamlitApp.exe
+  ```
+
+### macOS
+- Navigate to `dist/MyStreamlitApp/`
+- Make the file executable (first time only):
+  ```bash
+  chmod +x dist/MyStreamlitApp/MyStreamlitApp
+  ```
+- Run the application:
+  ```bash
+  ./dist/MyStreamlitApp/MyStreamlitApp
+  ```
+
+### Linux
+- Navigate to `dist/MyStreamlitApp/`
+- Make the file executable (first time only):
+  ```bash
+  chmod +x dist/MyStreamlitApp/MyStreamlitApp
+  ```
+- Run the application:
+  ```bash
+  ./dist/MyStreamlitApp/MyStreamlitApp
+  ```
+
+### OS Compatibility
+
+This application is compatible with:
+
+- **Windows**
+  - Windows 10 or later
+  - Requires .NET Framework 4.0+ and Edge WebView2
+  - See [Windows Prerequisites](#⚠️-important-for-windows-users) section for setup
+
+- **macOS**
+  - macOS 10.15 (Catalina) or later
+  - Both Intel and Apple Silicon (M1/M2) supported
+  - No additional dependencies required
+
+- **Linux**
+  - Most modern Linux distributions (Ubuntu 20.04+, Fedora 30+, etc.)
+  - Required packages: `webkit2gtk-4.0`, `xvfb` (for headless environments)
+  - Install dependencies on Ubuntu/Debian:
+    ```bash
+    sudo apt-get update
+    sudo apt-get install webkit2gtk-4.0
+    ```
+  - Install dependencies on Fedora:
+    ```bash
+    sudo dnf install webkit2gtk4.0
+    ```
+
+### Troubleshooting
+
+If you encounter issues running the built application:
+
+1. **Windows**:
+   - Ensure Edge WebView2 is installed
+   - Check if .NET Framework 4.0+ is installed
+   - Run the executable as administrator if necessary
+
+2. **macOS**:
+   - If you get a security warning, go to System Preferences > Security & Privacy and allow the application
+   - For Apple Silicon Macs, Rosetta 2 will be automatically used if needed
+
+3. **Linux**:
+   - Verify all required dependencies are installed
+   - Check system logs for any missing libraries
+   - Ensure proper permissions are set on the executable
