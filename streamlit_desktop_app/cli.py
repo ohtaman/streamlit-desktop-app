@@ -121,16 +121,6 @@ def add_build_parser(subparsers: argparse._SubParsersAction):
 
 def main():
     """Main entry point for the Streamlit Desktop App CLI.
-
-    This function sets up the argument parser, processes command-line arguments,
-    and executes the appropriate subcommand. Currently supports the 'build'
-    subcommand for creating standalone executables.
-
-    Example:
-        ```python
-        if __name__ == "__main__":
-            main()
-        ```
     """
     parser = argparse.ArgumentParser(
         description="Streamlit Desktop App CLI"
